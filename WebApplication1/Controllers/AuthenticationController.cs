@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using System.ComponentModel.DataAnnotations;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -49,7 +51,8 @@ namespace WebApplication1.Controllers
             {
                 Email = registerUser.Email,
                 SecurityStamp = Guid.NewGuid().ToString(),
-                UserName = registerUser.Username
+                UserName = registerUser.Username,
+                TwoFactorEnabled=true
             };
             if (await _roleManager.RoleExistsAsync(role))
             {
@@ -195,6 +198,35 @@ namespace WebApplication1.Controllers
             }
             return StatusCode(StatusCodes.Status404NotFound,
                 new Response { Status = "Success", Message = $"Invalid Code" });
+        }
+
+
+        [HttpPost]
+        [AllowAnonymous]
+        [Route("forgot-password")]
+        public async Task<IActionResult> ForgetPassword([Required] string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user != null)
+            {
+                var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+                var forgotPasswordlink = Url.Action(nameof(ResetPassword), "Authentication", new { token, email = user.Email }, Request.Scheme);
+                var message = new Message(new string[] { user.Email! }, "Forgot Password link", forgotPasswordlink!);
+                _emailService.SendEmail(message);
+                return StatusCode(StatusCodes.Status200OK, new Response { Status = "Success", Message = $"Password Changed request is sent on Email {user.Email} Please open your email & click the link" });
+            }
+            return StatusCode(StatusCodes.Status400BadRequest, new Response { Status = "Error", Message = $"could not send link to email , please try again." });
+
+        }
+
+        [HttpGet("reset-password")]
+        public async Task<IActionResult> ResetPassword(string token, string email)
+        {
+            var model = new ResetPassword { Token = token, Email = email };
+            return Ok(new
+            { 
+                model 
+            });
         }
 
         private JwtSecurityToken GetToken(List<Claim> authClaims)
