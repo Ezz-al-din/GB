@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace WebApplication1.Controllers
 {
-    [Authorize("Admin")]
+    [Authorize(Roles ="Admin")]
     [Route("api/controller")]
     [ApiController]
     public class AdminController : ControllerBase
