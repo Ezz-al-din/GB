@@ -229,6 +229,29 @@ namespace WebApplication1.Controllers
             });
         }
 
+        [HttpPost]
+        [AllowAnonymous]
+        [Route("reset-password")]
+        public async Task<IActionResult> ResetPassword(ResetPassword resetPassword)
+        {
+            var user = await _userManager.FindByEmailAsync(resetPassword.Email);
+            if(user != null)
+            {
+                var resetPassResult = await _userManager.ResetPasswordAsync(user, resetPassword.Token, resetPassword.Password);
+                if (!resetPassResult.Succeeded)
+                {
+                    foreach(var error in resetPassResult.Errors)
+                    {
+                        ModelState.AddModelError(error.Code, error.Description);
+                    }
+                    return Ok(ModelState);
+                }
+
+                return StatusCode(StatusCodes.Status200OK, new Response { Status = "Success", Message = $"Password has been changed" });
+            }
+            return StatusCode(StatusCodes.Status400BadRequest, new Response { Status = "Error", Message = $"Couldnot send link to email , please try again" });
+        }
+
         private JwtSecurityToken GetToken(List<Claim> authClaims)
         {
             var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]));
