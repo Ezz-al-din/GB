@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
+using System.Reflection.Emit;
 
 namespace WebApplication1.Models
 {
@@ -11,13 +13,17 @@ namespace WebApplication1.Models
 
         }
 
+        public DbSet<Quiz> Quizzes { get; set; }
+        public DbSet<Question> Questions { get; set; }
+        public DbSet<Option> Options { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
-            this.SeedRoles(builder);
+            /*this.SeedRoles(builder);*/
         }
 
-        private void SeedRoles(ModelBuilder builder)
+        /*private void SeedRoles(ModelBuilder builder)
         {
             builder.Entity<IdentityRole>().HasData
                 (
@@ -28,6 +34,6 @@ namespace WebApplication1.Models
                     new IdentityRole() { Name = "Student", ConcurrencyStamp= "5" , NormalizedName= "Student" }
 
                 );
-        }
+        }*/
     }
 }

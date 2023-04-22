@@ -1,11 +1,13 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using User.Management.Service.Models;
 using User.Management.Service.Services;
+using WebApplication1.Interfaces;
 //using NETCore.MailKit.Core;
 
 using WebApplication1.Models;
@@ -62,6 +64,8 @@ namespace WebApplication1
             builder.Services.AddSingleton(emailConfig);
 
             builder.Services.AddScoped<IEmailService, EmailService>();
+            /*builder.Services.AddTransient<IQuizService, QuizService>();*/
+            builder.Services.AddTransient<IMemoryCache,MemoryCache>();
 
 
             // Add services to the container.
